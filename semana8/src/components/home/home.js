@@ -19,8 +19,10 @@ const Home = () => {
   const [users, setUsers] = React.useState();
   const [notes, setNotes] = React.useState();
 
+  // URL DEL API
   const urlDelApi = "http://localhost/dashboard/apiDB.php/records";
 
+  // MOCKS DE USUARIOS
   const mockUser = {
     usuario: "admin",
     password: "admin",
@@ -69,7 +71,6 @@ const Home = () => {
 
   let nombre = "Sergio";
 
-  // ES6
 
   const onClickBtn = () => {
     console.log("click", formValues);
@@ -95,6 +96,7 @@ const Home = () => {
     setFormValues({ ...formValues, [name]: value });
   };
 
+// LLAMA AL API
   const callAPINotes = (event) => {
     axios
       .get(`${urlDelApi}/notes`)
@@ -143,9 +145,7 @@ const Home = () => {
       });
   };
 
-
-  //inicio tarea
- //varibale para ingresar datos al api
+// COSNT PARA LA CREACION DEL INSERT EN LA BD CON EL API
     const [formData, setFormData] = useState({
       UserID: '',
       Title: '',
@@ -249,7 +249,7 @@ const Home = () => {
       <Grid item xs={5}>
           <h2>Insertar Nota en base de datos</h2>
           <Grid item xs={2} style={{}}>
-
+          
             <form onSubmit={handleSubmit}>
               <ul>
                 <label for="ID">ID:</label>
@@ -261,16 +261,13 @@ const Home = () => {
                 <br/><br/>
 
                 <label for="Contenido">Contenido:</label>
-                <input type="text"name="Content" value={formData.Content} onChange={handleChange}/>
+                <input type="textarea"name="Content" value={formData.Content} onChange={handleChange}/>
                 <br/><br/>
                 <Button  type="submit" variant="contained" sx={{ mx: 2 }}>Insertar</Button>
               </ul>
             </form>
       </Grid>
-
-        
         </Grid>
-
 
         <Grid item xs={6} style={{}}>
           <h2>Llamar Local y base de datos</h2>
@@ -291,10 +288,7 @@ const Home = () => {
             {" "}
             Este boton hace un llamado el API localmente y la BD del PHP
           </p>
-
           <Button onClick={callAPINotes} variant="contained" sx={{ mx: 3 }}>Llamar API</Button>
-    
-
           <Button onClick={clearNotes} color="secondary" variant="text">Limpiar</Button>
         </Grid>
 
@@ -307,9 +301,7 @@ const Home = () => {
         </Grid>
       </Grid>
 
-      <Card id="card-home" className={styles["card-home"]}>
-        {console.log("por aca ando")}
-
+      <Card id="card-home" className={styles["card-home"]}>{console.log("por aca ando")}
         <Grid container spacing={2}>
           {notes?.map((nota, index) => {
             return (
@@ -326,7 +318,5 @@ const Home = () => {
 };
 
 Home.propTypes = {};
-
 Home.defaultProps = {};
-
 export default Home;
