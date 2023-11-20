@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-
+import { useState } from "react";
 import axios from "axios";
 import User from "../User/User";
 import Note from "../Note/Note";
@@ -18,7 +18,9 @@ const Home = () => {
   const [authenticated, setAuthenticated] = React.useState();
   const [users, setUsers] = React.useState();
   const [notes, setNotes] = React.useState();
-  const urlDelApi = "http://localhost:8088/apiDB.php/records";
+
+  const urlDelApi = "http://localhost/dashboard/apiDB.php/records";
+
   const mockUser = {
     usuario: "admin",
     password: "admin",
@@ -78,6 +80,8 @@ const Home = () => {
       mockUser.password === formValues.password
     ) {
       console.log("Usuario correcto");
+    } else {
+      console.log("Usuario incorrecto");
     }
   };
 
@@ -93,10 +97,12 @@ const Home = () => {
 
   const callAPINotes = (event) => {
     axios
-      .get(`${urlDelApi}/Notes`)
+      .get(`${urlDelApi}/notes`)
       .then(function (response) {
         // handle success
+        console.log(response);
         console.log(response.data.records);
+        console.log(response.statusText);
         setNotes(response.data.records);
       })
       .catch(function (error) {
@@ -118,13 +124,14 @@ const Home = () => {
     const data = formValues;
 
     // ("/records/categories?filter=id,gt,1&filter=id,lt,3");
+    console.log("data");
     axios
       .get(
         `${urlDelApi}/Users?filter=Username,eq,${formValues.usuario}&filter=Password,eq,${formValues.password}`
       )
       .then(function (response) {
         // handle success
-        console.log(response.data.records);
+        console.log("data", response.data.records);
         setUsers(response.data.records);
       })
       .catch(function (error) {
@@ -136,6 +143,72 @@ const Home = () => {
       });
   };
 
+
+  //inicio tarea
+ //varibale para ingresar datos al api
+    const [formData, setFormData] = useState({
+      UserID: '',
+      Title: '',
+      Content: ''
+    });
+
+    const handleChange = (e) => {
+      setFormData({...formData,[e.target.name]: e.target.value});
+    };
+
+
+    const handleReset = () => {
+      setFormData({
+        UserID: '',
+        Title: '',
+        Content: ''
+      });
+    };
+
+    const insertNoteToDB2 = () => {
+      axios
+      .post(`${urlDelApi}/notes`, formData)
+      .then(function (response) {
+        // calling reset action
+        handleReset();
+      })
+        .then(function (response) {
+          // handle success
+          callAPINotes();
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        })
+        .finally(function () {
+          // always executed
+        });
+    };
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      insertNoteToDB2(formData);
+    };
+
+  const insertNoteToDB = () => {
+    axios
+      .post(`${urlDelApi}/notes`, {
+        UserID: 3,
+        Title: "Task 1",
+        Content: "nota quemada insertada desde vs code.",
+      })
+      .then(function (response) {
+        // handle success
+        callAPINotes();
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .finally(function () {
+        // always executed
+      });
+  };
   return (
     <div className={styles.Home}>
       <h1>{data}</h1>
@@ -166,26 +239,39 @@ const Home = () => {
             label="Outlined"
             variant="standard"
           />
-          <br />
-          <br />
+          <br/><br/><br/>
           <Button onClick={callAPIAuthenticate} variant="contained">
             Authenticar
           </Button>
         </Grid>
-        <Grid item xs={6}>
-          <h2>Llamar API y base de datos</h2>
-          <p>
-            {" "}
-            Este boton hace un llamado a la base de datos previamente
-            configurada
-          </p>
-          <Button onClick={callAPINotes} variant="contained" sx={{ mx: 2 }}>
-            Llamar API
-          </Button>
-          <Button onClick={clearNotes} color="secondary" variant="text">
-            Limpiar
-          </Button>
+
+
+      <Grid item xs={5}>
+          <h2>Insertar Nota en base de datos</h2>
+          <Grid item xs={2} style={{}}>
+
+            <form onSubmit={handleSubmit}>
+              <ul>
+                <label for="ID">ID:</label>
+                <input type="text"name="UserID" value={formData.UserID} onChange={handleChange}/>
+                <br/><br/>
+
+                <label for="Titulo">Título:</label>
+                <input type="text"name="Title" value={formData.Title} onChange={handleChange}/>
+                <br/><br/>
+
+                <label for="Contenido">Contenido:</label>
+                <input type="text"name="Content" value={formData.Content} onChange={handleChange}/>
+                <br/><br/>
+                <Button  type="submit" variant="contained" sx={{ mx: 2 }}>Insertar</Button>
+              </ul>
+            </form>
+      </Grid>
+
+        
         </Grid>
+
+
         <Grid item xs={6} style={{}}>
           <h2>Llamar Local y base de datos</h2>
           <p>
@@ -193,13 +279,25 @@ const Home = () => {
             Este boton hace un llamado a el arreglo MockNotes definido
             previamente
           </p>
-          <Button onClick={callAPMockNotes} variant="contained" sx={{ mx: 2 }}>
-            Llamar Local
-          </Button>
-          <Button onClick={clearNotes} color="secondary" variant="text">
-            Limpiar
-          </Button>
+          <Button onClick={callAPMockNotes} variant="contained" sx={{ mx: 2 }}>Llamar Local</Button>
+
+          <Button onClick={insertNoteToDB} variant="contained" sx={{ mx: 2 }}>Insertar nota</Button>
+
+          <Button onClick={clearNotes} color="secondary" variant="text">Limpiar</Button>
+          <br></br><br></br><br></br>
+
+          <h2>Llamar API localmente y base de datos</h2>
+          <p>
+            {" "}
+            Este boton hace un llamado el API localmente y la BD del PHP
+          </p>
+
+          <Button onClick={callAPINotes} variant="contained" sx={{ mx: 3 }}>Llamar API</Button>
+    
+
+          <Button onClick={clearNotes} color="secondary" variant="text">Limpiar</Button>
         </Grid>
+
         <Grid item xs={12}>
           {" "}
           <p>
@@ -210,12 +308,14 @@ const Home = () => {
       </Grid>
 
       <Card id="card-home" className={styles["card-home"]}>
+        {console.log("por aca ando")}
+
         <Grid container spacing={2}>
-          {notes?.map((fila, index) => {
+          {notes?.map((nota, index) => {
             return (
-              <Grid item>
+              <Grid item xs={4}>
                 {" "}
-                <Note note={fila}></Note>
+                <Note titulo="titulo" note={nota}></Note>
               </Grid>
             );
           })}
